@@ -13,4 +13,6 @@ For more usage, see `npx fitbit-sim-starter -h`
 
 ## Issues
 
+You may want to be able to run docker commands without sudo, see https://github.com/sindresorhus/guides/blob/master/docker-without-sudo.md
+
 Sometimes the simulator times out and fails to load. You can press ctrl+c and run it again. You can also run `npx fitbit-sim-starter -r` to reset the container.
