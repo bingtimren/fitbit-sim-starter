@@ -115,6 +115,10 @@ try {
   console.log(
     `Container id=${containerId}, status=${containerStatus}, hostname=${containerHostname}`
   );
+  if (containerStatus === 'running') {
+    console.log('Stopping currently running container');
+    execSync(`docker container stop ${containerName}`);
+  }
   console.log(`Authorizing container host ${containerHostname} with xhost`);
   execSync(`xhost +local:${containerHostname}`);
 
