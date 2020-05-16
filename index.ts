@@ -15,10 +15,6 @@ program
   .option('-u, --update', 'update container by removing & re-pulling image')
   .option('-r, --reset', 'reset container')
   .option('-q, --quiet', `ignore simulator's output`)
-  .option(
-    '-n, --network',
-    'run container with host network driver (if docker is built to limit file access to within $HOME)'
-  )
   .parse(process.argv);
 
 // test docker
@@ -44,9 +40,20 @@ try {
   execSync(`docker image pull ${image}`, { stdio: 'inherit' });
 }
 
-const containerName = program.network
-  ? 'fitbit-sim-starter-net'
-  : 'fitbit-sim-starter';
+// check if docker able to mount /tmp/.X11-unix
+const volumeMountSuccess =
+  parseInt(
+    execSync(`docker run \
+  --rm \
+  --volume=/tmp/.X11-unix:/tmp/.X11-unix \
+  --entrypoint="" \
+  ${image} ls /tmp/.X11-unix \
+  |grep -E "^X[0-9]+$"|wc -l`).toString(),
+    undefined
+  ) > 0;
+const containerName = volumeMountSuccess
+  ? 'fitbit-sim-starter-socket'
+  : 'fitbit-sim-starter-network';
 
 // check if container exists
 try {
@@ -59,7 +66,10 @@ try {
   }
 } catch (error) {
   console.log(`Creating container ${containerName}.`);
-  if (program.network) {
+  if (!volumeMountSuccess) {
+    console.log(
+      'Your docker cannot mount volume /tmp/.X11-unix, uses host network'
+    );
     execSync(
       `docker container create \
           -it \

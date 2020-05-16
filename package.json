@@ -20,7 +20,8 @@
     "test:lint": "tslint --project . && prettier \"**/*.ts\" --list-different",
     "watch": "run-s clean build:main && run-p \"build:main -- -w\"",
     "version": "standard-version",
-    "reset": "git clean -dfx && git reset --hard && npm i",
+    "reset": "npm run porcelain && git clean -dfx && git reset --hard && npm i",
+    "porcelain": "sh -c '[[ -z \"$(git status --porcelain)\" ]]' || (echo Warning - pending changes && exit 1)",
     "clean": "trash build test",
     "prepare-release": "run-s reset test version"
   },
