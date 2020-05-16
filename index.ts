@@ -5,7 +5,6 @@ import { program } from 'commander';
 import { Writable } from 'stream';
 import { version } from './package.json';
 
-const containerName = 'fitbit-sim-starter';
 const imageRepository = 'bingtimren/fitbit-simulator';
 const imageTag = 'linux_wine_latest';
 const image = imageRepository + ':' + imageTag;
@@ -16,6 +15,7 @@ program
   .option('-u, --update', 'update container by removing & re-pulling image')
   .option('-r, --reset', 'reset container')
   .option('-q, --quiet', `ignore simulator's output`)
+  .option('-n, --network', 'run container with host network driver (if docker is built to limit file access to within $HOME)')
   .parse(process.argv);
 
 // test docker
@@ -41,6 +41,8 @@ try {
   execSync(`docker image pull ${image}`, { stdio: 'inherit' });
 }
 
+const containerName = program.network?'fitbit-sim-starter-net':'fitbit-sim-starter';
+
 // check if container exists
 try {
   execSync(`docker container inspect ${containerName}`, { stdio: 'ignore' });
@@ -52,17 +54,32 @@ try {
   }
 } catch (error) {
   console.log(`Creating container ${containerName}.`);
-  execSync(
-    `docker container create \
-        -it \
-        --env="DISPLAY" \
-        --env="QT_X11_NO_MITSHM=1" \
-        --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
-        --ipc="host" \
-        --name ${containerName} \
-        ${image}`,
-    { stdio: 'inherit' }
-  );
+  if (program.network) {
+    execSync(
+      `docker container create \
+          -it \
+          --net=host \
+          --env="DISPLAY" \
+          --env="QT_X11_NO_MITSHM=1" \
+          --volume="$HOME/.Xauthority:/root/.Xauthority:ro" \
+          --ipc="host" \
+          --name ${containerName} \
+          ${image}`,
+      { stdio: 'inherit' }
+    );
+  } else {
+    execSync(
+      `docker container create \
+          -it \
+          --env="DISPLAY" \
+          --env="QT_X11_NO_MITSHM=1" \
+          --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+          --ipc="host" \
+          --name ${containerName} \
+          ${image}`,
+      { stdio: 'inherit' }
+    );
+  }
 }
 
 // inspect container
