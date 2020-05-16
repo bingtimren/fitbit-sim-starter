@@ -21,7 +21,7 @@
     "watch": "run-s clean build:main && run-p \"build:main -- -w\"",
     "version": "standard-version",
     "reset": "npm run porcelain && git clean -dfx && git reset --hard && npm i",
-    "porcelain": "sh -c '[[ -z \"$(git status --porcelain)\" ]]' || (echo Warning - pending changes && exit 1)",
+    "porcelain": "if [ $(git status --porcelain|wc -c) > 0 ];then echo Warning - pending changes && exit 1;fi",
     "clean": "trash build test",
     "prepare-release": "run-s reset test version"
   },
