@@ -20,3 +20,6 @@ For more usage, see `npx fitbit-sim-starter -h`
 Some Docker installation is built to limit file access to $HOME. See above.
 
 Sometimes the simulator times out and fails to load. You can press ctrl+c and run it again. You can also run `npx fitbit-sim-starter -r` to reset the container.
+
+You may want to be able to run docker commands without sudo, see https://github.com/sindresorhus/guides/blob/master/docker-without-sudo.md
+
