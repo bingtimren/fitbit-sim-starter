@@ -1,6 +1,6 @@
 {
   "name": "fitbit-sim-starter",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Start Fitbit simulator in a docker container",
   "bin": {
     "fitbit-sim-starter": "build/main/index.js"
