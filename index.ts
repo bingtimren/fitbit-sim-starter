@@ -15,7 +15,10 @@ program
   .option('-u, --update', 'update container by removing & re-pulling image')
   .option('-r, --reset', 'reset container')
   .option('-q, --quiet', `ignore simulator's output`)
-  .option('-n, --network', 'run container with host network driver (if docker is built to limit file access to within $HOME)')
+  .option(
+    '-n, --network',
+    'run container with host network driver (if docker is built to limit file access to within $HOME)'
+  )
   .parse(process.argv);
 
 // test docker
@@ -41,7 +44,9 @@ try {
   execSync(`docker image pull ${image}`, { stdio: 'inherit' });
 }
 
-const containerName = program.network?'fitbit-sim-starter-net':'fitbit-sim-starter';
+const containerName = program.network
+  ? 'fitbit-sim-starter-net'
+  : 'fitbit-sim-starter';
 
 // check if container exists
 try {
