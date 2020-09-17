@@ -5,9 +5,6 @@ import { program } from 'commander';
 import { Writable } from 'stream';
 import { version } from './package.json';
 
-const imageRepository = 'bingtimren/fitbit-simulator';
-const imageTag = 'linux_wine_latest';
-const image = imageRepository + ':' + imageTag;
 const launchCmd = '. /root/start.sh\n';
 
 program
@@ -15,9 +12,16 @@ program
   .option('-u, --update', 'update container by removing & re-pulling image')
   .option('-r, --reset', 'reset container')
   .option('-q, --quiet', `ignore simulator's output`)
+  .option('-p, --repository <image-repository>', 'image repository', 'bingtimren/fitbit-simulator')
+  .option('-t, --tag <image-tag>', 'image tag', 'linux_wine_latest')
   .parse(process.argv);
 
-// test docker
+
+const imageRepository = program.repository;
+const imageTag = program.tag;
+const image = imageRepository + ':' + imageTag;
+
+  // test docker
 try {
   const dockerVer = execSync('docker --version');
   console.log(dockerVer.toString());
@@ -27,8 +31,10 @@ try {
 }
 
 // check image
+console.log(`Docker image: ${image}`)
+let imageId:string|undefined;
 try {
-  execSync(`docker image ls ${image}|grep ${imageTag}`);
+  imageId = execSync(`docker image inspect -f '{{.Id}}' ${image}`).toString();
   if (program.update) {
     execSync(`docker image rm -f ${image}`);
     throw new Error('throw error to pull image');
@@ -38,7 +44,9 @@ try {
     'Pulling simulator image from public repository, this may take some time'
   );
   execSync(`docker image pull ${image}`, { stdio: 'inherit' });
+  imageId = execSync(`docker image inspect -f '{{.Id}}' ${image}`).toString();
 }
+console.log(`Docker image ID: ${imageId}`)
 
 // check if docker able to mount /tmp/.X11-unix
 const volumeMountSuccess =
@@ -55,11 +63,16 @@ const containerName = volumeMountSuccess
   ? 'fitbit-sim-starter-socket'
   : 'fitbit-sim-starter-network';
 
+console.log(`Container: ${containerName}`)
+
 // check if container exists
 try {
-  execSync(`docker container inspect ${containerName}`, { stdio: 'ignore' });
-  console.log(`Container ${containerName} exists.`);
-  if (program.update || program.reset) {
+  const containerImageId = execSync(`docker container inspect -f '{{.Image}}' ${containerName}`).toString();
+  console.log(`Container ${containerName} exists, launched with image ${containerImageId}.`);
+  if (containerImageId !== imageId) {
+    console.log(`Container ${containerName} was launched with a different image, reset.`);
+  }
+  if (program.update || program.reset || containerImageId !== imageId) {
     console.log(`Resetting (remove & recreate) container ${containerName}`);
     execSync(`docker container rm -f ${containerName}`);
     throw new Error('throw error to re-create container');
