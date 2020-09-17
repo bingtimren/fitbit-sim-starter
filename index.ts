@@ -9,19 +9,16 @@ const launchCmd = '. /root/start.sh\n';
 
 program
   .version(version)
-  .option('-u, --update', 'update container by removing & re-pulling image')
+  .option('-u, --update', 'update image by removing & re-pulling image')
   .option('-r, --reset', 'reset container')
   .option('-q, --quiet', `ignore simulator's output`)
-  .option('-p, --repository <image-repository>', 'image repository', 'bingtimren/fitbit-simulator')
-  .option('-t, --tag <image-tag>', 'image tag', 'linux_wine_latest')
+  .option('-i, --image <docker-image>', 'docker image', 'bingtimren/fitbit-simulator:linux_wine_latest')
   .parse(process.argv);
 
 
-const imageRepository = program.repository;
-const imageTag = program.tag;
-const image = imageRepository + ':' + imageTag;
+const image = program.image;
 
-  // test docker
+// test docker
 try {
   const dockerVer = execSync('docker --version');
   console.log(dockerVer.toString());
