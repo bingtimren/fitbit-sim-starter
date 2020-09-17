@@ -12,9 +12,12 @@ program
   .option('-u, --update', 'update image by removing & re-pulling image')
   .option('-r, --reset', 'reset container')
   .option('-q, --quiet', `ignore simulator's output`)
-  .option('-i, --image <docker-image>', 'docker image', 'bingtimren/fitbit-simulator:linux_wine_latest')
+  .option(
+    '-i, --image <docker-image>',
+    'docker image',
+    'bingtimren/fitbit-simulator:linux_wine_latest'
+  )
   .parse(process.argv);
-
 
 const image = program.image;
 
@@ -28,8 +31,8 @@ try {
 }
 
 // check image
-console.log(`Docker image: ${image}`)
-let imageId:string|undefined;
+console.log(`Docker image: ${image}`);
+let imageId: string | undefined;
 try {
   imageId = execSync(`docker image inspect -f '{{.Id}}' ${image}`).toString();
   if (program.update) {
@@ -43,7 +46,7 @@ try {
   execSync(`docker image pull ${image}`, { stdio: 'inherit' });
   imageId = execSync(`docker image inspect -f '{{.Id}}' ${image}`).toString();
 }
-console.log(`Docker image ID: ${imageId}`)
+console.log(`Docker image ID: ${imageId}`);
 
 // check if docker able to mount /tmp/.X11-unix
 const volumeMountSuccess =
@@ -60,14 +63,20 @@ const containerName = volumeMountSuccess
   ? 'fitbit-sim-starter-socket'
   : 'fitbit-sim-starter-network';
 
-console.log(`Container: ${containerName}`)
+console.log(`Container: ${containerName}`);
 
 // check if container exists
 try {
-  const containerImageId = execSync(`docker container inspect -f '{{.Image}}' ${containerName}`).toString();
-  console.log(`Container ${containerName} exists, launched with image ${containerImageId}.`);
+  const containerImageId = execSync(
+    `docker container inspect -f '{{.Image}}' ${containerName}`
+  ).toString();
+  console.log(
+    `Container ${containerName} exists, launched with image ${containerImageId}.`
+  );
   if (containerImageId !== imageId) {
-    console.log(`Container ${containerName} was launched with a different image, reset.`);
+    console.log(
+      `Container ${containerName} was launched with a different image, reset.`
+    );
   }
   if (program.update || program.reset || containerImageId !== imageId) {
     console.log(`Resetting (remove & recreate) container ${containerName}`);
