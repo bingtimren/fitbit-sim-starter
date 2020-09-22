@@ -9,6 +9,8 @@ The starter launches the container with necessary settings and sets xhost to all
 
 To use, run `npx fitbit-sim-starter`
 
+To upgrade to latest docker image, run `npx fitbit-sim-starter -u -r`
+
 By default the container connects to the host's X server via a socket connection. However, some docker installations are built to limit file access to $HOME (VirtualBox, boot2docker, Docker installed from snap https://snapcraft.io/docker), not allowing containers to access the socket. In this case, the starter launches the container to use the host's network stack.
 
 After simulater starts up, you can press ctrl+c to return to console.
@@ -16,6 +18,8 @@ After simulater starts up, you can press ctrl+c to return to console.
 For more usage, see `npx fitbit-sim-starter -h`
 
 ## Issues
+
+After fitbit simulator upgraded to 0.8.3, the container consumes 100% CPU. The GUI feels a bit sluggish and the noise of CPU cooling fan could be annoying, but it's useable. If you can come up with a better working docker image, please let me know.
 
 Sometimes the simulator times out and fails to load. You can press ctrl+c and run it again. You can also run `npx fitbit-sim-starter -r` to reset the container.
 

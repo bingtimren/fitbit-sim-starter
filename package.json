@@ -22,7 +22,7 @@
     "version": "standard-version",
     "reset": "git clean -dfx && git reset --hard && npm i",
     "clean": "trash build test",
-    "hard-reset-and-prepare-release": "run-s reset test version"
+    "hard-reset-and-prepare-release": "run-s reset test version build"
   },
   "scripts-info": {
     "info": "Display information about the package scripts",
