@@ -21,6 +21,10 @@ For more usage, see `npx fitbit-sim-starter -h`
 
 After fitbit simulator upgraded to 0.8.3, the container consumes 100% CPU. The GUI feels a bit sluggish and the noise of CPU cooling fan could be annoying, but it's useable. If you can come up with a better working docker image, please let me know.
 
+Otherwise, you can use '-i' option to designate simulator 0.8.2 image, and '-l' option to prevent simulator from upgrading.
+
+`npx fitbit-sim-starter -r -u -i bingtimren/fitbit-simulator:linux_wine_v0_8_2 -l`
+
 Sometimes the simulator times out and fails to load. You can press ctrl+c and run it again. You can also run `npx fitbit-sim-starter -r` to reset the container.
 
 You may want to be able to run docker commands without sudo, see https://github.com/sindresorhus/guides/blob/master/docker-without-sudo.md

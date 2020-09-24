@@ -12,6 +12,7 @@ program
   .option('-u, --update', 'update image by removing & re-pulling image')
   .option('-r, --reset', 'reset container')
   .option('-q, --quiet', `ignore simulator's output`)
+  .option('-l, --lock', `prevent simulator upgrade`)
   .option(
     '-i, --image <docker-image>',
     'docker image',
@@ -20,6 +21,9 @@ program
   .parse(process.argv);
 
 const image = program.image;
+const addhost = program.lock
+  ? ' --add-host simulator-updates.fitbit.com:127.0.0.1 '
+  : ' ';
 
 // test docker
 try {
@@ -94,6 +98,7 @@ try {
           -it \
           --net=host \
           --env="DISPLAY" \
+          ${addhost} \
           --env="QT_X11_NO_MITSHM=1" \
           --volume="$HOME/.Xauthority:/root/.Xauthority:ro" \
           --ipc="host" \
@@ -107,6 +112,7 @@ try {
           -it \
           --env="DISPLAY" \
           --env="QT_X11_NO_MITSHM=1" \
+          ${addhost} \
           --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
           --ipc="host" \
           --name ${containerName} \
