@@ -14,6 +14,11 @@ program
   .option('-q, --quiet', `ignore simulator's output`)
   .option('-l, --lock', `prevent simulator upgrade`)
   .option(
+    '-o, --container-opts <options>',
+    `additional options for the container`,
+    ''
+  )
+  .option(
     '-i, --image <docker-image>',
     'docker image',
     'bingtimren/fitbit-simulator:linux_wine_latest'
@@ -25,6 +30,12 @@ const addhost = program.lock
   ? ' --add-host simulator-updates.fitbit.com:127.0.0.1 '
   : ' ';
 
+const additionalContainerOptions: string = program.containerOpts;
+if (additionalContainerOptions) {
+  console.log(
+    `"Using additional options for the container: ${additionalContainerOptions}, assuming --reset`
+  );
+}
 // test docker
 try {
   const dockerVer = execSync('docker --version');
@@ -82,7 +93,12 @@ try {
       `Container ${containerName} was launched with a different image, reset.`
     );
   }
-  if (program.update || program.reset || containerImageId !== imageId) {
+  if (
+    program.update ||
+    program.reset ||
+    additionalContainerOptions.length > 0 ||
+    containerImageId !== imageId
+  ) {
     console.log(`Resetting (remove & recreate) container ${containerName}`);
     execSync(`docker container rm -f ${containerName}`);
     throw new Error('throw error to re-create container');
@@ -103,7 +119,7 @@ try {
           --volume="$HOME/.Xauthority:/root/.Xauthority:ro" \
           --ipc="host" \
           --name ${containerName} \
-          ${image}`,
+          ${additionalContainerOptions} ${image}`,
       { stdio: 'inherit' }
     );
   } else {
@@ -116,7 +132,7 @@ try {
           --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
           --ipc="host" \
           --name ${containerName} \
-          ${image}`,
+          ${additionalContainerOptions} ${image}`,
       { stdio: 'inherit' }
     );
   }
