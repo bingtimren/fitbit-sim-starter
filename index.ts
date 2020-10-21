@@ -26,6 +26,8 @@ program
   )
   .parse(process.argv);
 
+console.log(`fitbit-sim-starter ${version}`);
+
 const image = program.image;
 const addhost = program.lock
   ? ' --add-host simulator-updates.fitbit.com:127.0.0.1 '
