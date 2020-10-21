@@ -131,7 +131,7 @@ try {
           --env="QT_X11_NO_MITSHM=1" \
           ${addhost} \
           --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
-          --device=/dev/dri --group-add video --device=/dev/snd \          
+          --device=/dev/dri --group-add video --device=/dev/snd \
           --ipc="host" \
           --name ${containerName} \
           ${additionalContainerOptions} ${image}`,
