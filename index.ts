@@ -13,6 +13,7 @@ program
   .option('-r, --reset', 'reset container')
   .option('-q, --quiet', `ignore simulator's output`)
   .option('-l, --lock', `prevent simulator upgrade`)
+  .option('-n, --host-network', `use host network instead of domain socket`)
   .option(
     '-o, --container-opts <options>',
     `additional options for the container`,
@@ -105,9 +106,9 @@ try {
   }
 } catch (error) {
   console.log(`Creating container ${containerName}.`);
-  if (!volumeMountSuccess) {
+  if (!volumeMountSuccess || program.hostNetwork) {
     console.log(
-      'Your docker cannot mount volume /tmp/.X11-unix, uses host network'
+      'You set --host-network or your docker cannot mount volume /tmp/.X11-unix, uses host network'
     );
     execSync(
       `docker container create \
