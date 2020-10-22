@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.18](https://github.com/bingtimren/fitbit-sim-starter/compare/v1.0.17...v1.0.18) (2020-10-22)
+
+
+### Bug Fixes
+
+* make container name reflect correctly socket/network ([4b7f8e5](https://github.com/bingtimren/fitbit-sim-starter/commit/4b7f8e5abbb11fdd12b344c28ce7d76d0a030de7))
+
 ### [1.0.17](https://github.com/bingtimren/fitbit-sim-starter/compare/v1.0.16...v1.0.17) (2020-10-21)
 
 ### [1.0.16](https://github.com/bingtimren/fitbit-sim-starter/compare/v1.0.15...v1.0.16) (2020-10-21)
