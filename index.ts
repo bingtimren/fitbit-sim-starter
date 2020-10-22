@@ -77,9 +77,10 @@ const volumeMountSuccess =
   |grep -E "^X[0-9]+$"|wc -l`).toString(),
     undefined
   ) > 0;
-const containerName = volumeMountSuccess
-  ? 'fitbit-sim-starter-socket'
-  : 'fitbit-sim-starter-network';
+const containerName =
+  volumeMountSuccess && !program.hostNetwork
+    ? 'fitbit-sim-starter-socket'
+    : 'fitbit-sim-starter-network';
 
 console.log(`Container: ${containerName}`);
 
