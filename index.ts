@@ -42,13 +42,15 @@ if (additionalContainerOptions) {
 }
 
 // test docker or podman
-const containerEngine = checkContainerEngines("docker", "podman");
+const containerEngine = checkContainerEngines('docker', 'podman');
 
 // check image
 console.log(`Docker image: ${image}`);
 let imageId: string | undefined;
 try {
-  imageId = execSync(`${containerEngine} image inspect -f '{{.Id}}' ${image}`).toString();
+  imageId = execSync(
+    `${containerEngine} image inspect -f '{{.Id}}' ${image}`
+  ).toString();
   if (program.update) {
     execSync(`${containerEngine} image rm -f ${image}`);
     throw new Error('throw error to pull image');
@@ -58,7 +60,9 @@ try {
     'Pulling simulator image from public repository, this may take some time'
   );
   execSync(`${containerEngine} image pull ${image}`, { stdio: 'inherit' });
-  imageId = execSync(`${containerEngine} image inspect -f '{{.Id}}' ${image}`).toString();
+  imageId = execSync(
+    `${containerEngine} image inspect -f '{{.Id}}' ${image}`
+  ).toString();
 }
 console.log(`Docker image ID: ${imageId}`);
 
@@ -142,7 +146,9 @@ try {
 
 // inspect container
 try {
-  const containerId = execSync(`${containerEngine} ps -a -f name=${containerName} -q`)
+  const containerId = execSync(
+    `${containerEngine} ps -a -f name=${containerName} -q`
+  )
     .toString()
     .trim();
   const containerStatus = execSync(
@@ -189,19 +195,21 @@ try {
 function checkContainerEngines(...containerEngines: string[]) {
   let installedEngine: string | undefined;
 
-  for (let containerEngine of containerEngines) {
+  for (const containerEngine of containerEngines) {
     try {
-      let version = execSync(`${containerEngine} --version`);
+      const version = execSync(`${containerEngine} --version`);
       console.log(version.toString());
       installedEngine = containerEngine;
       break;
     } catch (error) {
-      console.warn(`Running ${containerEngine} failed. Check if ${containerEngine} is installed`);
+      console.warn(
+        `Running ${containerEngine} failed. Check if ${containerEngine} is installed`
+      );
     }
   }
 
-  if(!installedEngine){
-    console.error("No container engines are installed.")
+  if (!installedEngine) {
+    console.error('No container engines are installed.');
     process.exit(1);
   }
 
