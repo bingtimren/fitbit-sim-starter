@@ -197,7 +197,9 @@ function checkContainerEngines(...containerEngines: string[]) {
 
   for (const containerEngineCandidate of containerEngines) {
     try {
-      const candidateVersion = execSync(`${containerEngineCandidate} --version`);
+      const candidateVersion = execSync(
+        `${containerEngineCandidate} --version`
+      );
       console.log(candidateVersion.toString());
       installedEngine = containerEngineCandidate;
       break;
