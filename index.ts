@@ -34,42 +34,38 @@ const addhost = program.lock
   : ' ';
 
 const additionalContainerOptions: string = program.containerOpts;
+
 if (additionalContainerOptions) {
   console.log(
     `"Using additional options for the container: ${additionalContainerOptions}, assuming --reset`
   );
 }
-// test docker
-try {
-  const dockerVer = execSync('docker --version');
-  console.log(dockerVer.toString());
-} catch (error) {
-  console.error('Running docker failed. Check if docker is installed.');
-  process.exit(1);
-}
+
+// test docker or podman
+const containerEngine = checkContainerEngines("docker", "podman");
 
 // check image
 console.log(`Docker image: ${image}`);
 let imageId: string | undefined;
 try {
-  imageId = execSync(`docker image inspect -f '{{.Id}}' ${image}`).toString();
+  imageId = execSync(`${containerEngine} image inspect -f '{{.Id}}' ${image}`).toString();
   if (program.update) {
-    execSync(`docker image rm -f ${image}`);
+    execSync(`${containerEngine} image rm -f ${image}`);
     throw new Error('throw error to pull image');
   }
 } catch (error) {
   console.log(
     'Pulling simulator image from public repository, this may take some time'
   );
-  execSync(`docker image pull ${image}`, { stdio: 'inherit' });
-  imageId = execSync(`docker image inspect -f '{{.Id}}' ${image}`).toString();
+  execSync(`${containerEngine} image pull ${image}`, { stdio: 'inherit' });
+  imageId = execSync(`${containerEngine} image inspect -f '{{.Id}}' ${image}`).toString();
 }
 console.log(`Docker image ID: ${imageId}`);
 
 // check if docker able to mount /tmp/.X11-unix
 const volumeMountSuccess =
   parseInt(
-    execSync(`docker run \
+    execSync(`${containerEngine} run \
   --rm \
   --volume=/tmp/.X11-unix:/tmp/.X11-unix \
   --entrypoint="" \
@@ -87,7 +83,7 @@ console.log(`Container: ${containerName}`);
 // check if container exists
 try {
   const containerImageId = execSync(
-    `docker container inspect -f '{{.Image}}' ${containerName}`
+    `${containerEngine} container inspect -f '{{.Image}}' ${containerName}`
   ).toString();
   console.log(
     `Container ${containerName} exists, launched with image ${containerImageId}.`
@@ -104,17 +100,17 @@ try {
     containerImageId !== imageId
   ) {
     console.log(`Resetting (remove & recreate) container ${containerName}`);
-    execSync(`docker container rm -f ${containerName}`);
+    execSync(`${containerEngine} container rm -f ${containerName}`);
     throw new Error('throw error to re-create container');
   }
 } catch (error) {
   console.log(`Creating container ${containerName}.`);
   if (!volumeMountSuccess || program.hostNetwork) {
     console.log(
-      'You set --host-network or your docker cannot mount volume /tmp/.X11-unix, uses host network'
+      `You set --host-network or your ${containerEngine} cannot mount volume /tmp/.X11-unix, uses host network`
     );
     execSync(
-      `docker container create \
+      `${containerEngine} container create \
           -it \
           --net=host \
           --env="DISPLAY" \
@@ -129,7 +125,7 @@ try {
     );
   } else {
     execSync(
-      `docker container create \
+      `${containerEngine} container create \
           -it \
           --env="DISPLAY" \
           --env="QT_X11_NO_MITSHM=1" \
@@ -146,16 +142,16 @@ try {
 
 // inspect container
 try {
-  const containerId = execSync(`docker ps -a -f NAME=${containerName} -q`)
+  const containerId = execSync(`${containerEngine} ps -a -f name=${containerName} -q`)
     .toString()
     .trim();
   const containerStatus = execSync(
-    `docker container inspect --format='{{ .State.Status }}' ${containerName}`
+    `${containerEngine} container inspect --format='{{ .State.Status }}' ${containerName}`
   )
     .toString()
     .trim();
   const containerHostname = execSync(
-    `docker inspect --format='{{ .Config.Hostname }}' ${containerName}`
+    `${containerEngine} inspect --format='{{ .Config.Hostname }}' ${containerName}`
   )
     .toString()
     .trim();
@@ -164,7 +160,7 @@ try {
   );
   if (containerStatus === 'running') {
     console.log('Stopping currently running container');
-    execSync(`docker container stop ${containerName}`);
+    execSync(`${containerEngine} container stop ${containerName}`);
   }
   console.log(`Authorizing container host ${containerHostname} with xhost`);
   execSync(`xhost +local:${containerHostname}`);
@@ -174,7 +170,7 @@ try {
   console.log(
     `Starting container. You can press ctrl+c after start to return to the console.`
   );
-  const container = spawn(`docker start -i -a ${containerId}`, {
+  const container = spawn(`${containerEngine} start -i -a ${containerId}`, {
     detached: true,
     shell: true,
     stdio: 'pipe',
@@ -188,4 +184,26 @@ try {
 } catch (error) {
   console.error(`Unknown Error: ${error}`);
   process.exit(1);
+}
+
+function checkContainerEngines(...containerEngines: string[]) {
+  let installedEngine: string | undefined;
+
+  for (let containerEngine of containerEngines) {
+    try {
+      let version = execSync(`${containerEngine} --version`);
+      console.log(version.toString());
+      installedEngine = containerEngine;
+      break;
+    } catch (error) {
+      console.warn(`Running ${containerEngine} failed. Check if ${containerEngine} is installed`);
+    }
+  }
+
+  if(!installedEngine){
+    console.error("No container engines are installed.")
+    process.exit(1);
+  }
+
+  return installedEngine;
 }
