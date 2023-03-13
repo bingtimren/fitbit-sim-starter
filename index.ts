@@ -195,15 +195,15 @@ try {
 function checkContainerEngines(...containerEngines: string[]) {
   let installedEngine: string | undefined;
 
-  for (const containerEngine of containerEngines) {
+  for (const containerEngineCandidate of containerEngines) {
     try {
-      const version = execSync(`${containerEngine} --version`);
-      console.log(version.toString());
-      installedEngine = containerEngine;
+      const candidateVersion = execSync(`${containerEngineCandidate} --version`);
+      console.log(candidateVersion.toString());
+      installedEngine = containerEngineCandidate;
       break;
     } catch (error) {
       console.warn(
-        `Running ${containerEngine} failed. Check if ${containerEngine} is installed`
+        `Running ${containerEngineCandidate} failed. Check if ${containerEngineCandidate} is installed`
       );
     }
   }
